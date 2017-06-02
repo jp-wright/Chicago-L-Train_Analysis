@@ -254,16 +254,14 @@ def find_seasonal_means(df, n=5):
     INPUT: df
     OUTPUT: df with the averages for each station for hot and cold months
     """
-    # dftemp = pd.DataFrame(index=sorted(daily_rides, reverse=True)[:5], )
     dd = cll.defaultdict(list)
     dfcold = df[df['date'].dt.month.isin([1, 2, 3, 12])]
     dfhot = df[df['date'].dt.month.isin([6, 7, 8, 9])]
-    # for dfseason in [dfcold, dfhot]:
     for year in df['date'].dt.year.sort_values().unique():
         for station in [itm[1] for itm in sorted(daily_rides, reverse=True)[:n]]:
             dfstation_hot = dfhot[(dfhot['date'].dt.year == year) & (dfhot['stationname'] == station)]
             dfstation_cold = dfcold[(dfcold['date'].dt.year == year) & (dfcold['stationname'] == station)]
-            print("{yr} {st} - Hot: {h}, Cold: {c}".format(yr=year, st=station, h=dfstation_hot['rides'].mean(), c=dfstation_cold['rides'].mean()))
+            # print("{yr} {st} - Hot: {h}, Cold: {c}".format(yr=year, st=station, h=dfstation_hot['rides'].mean(), c=dfstation_cold['rides'].mean()))
             dd[station].append(dfstation_hot['rides'].mean())
             dd[station].append(dfstation_cold['rides'].mean())
 
@@ -313,7 +311,7 @@ if __name__ == '__main__':
     df['date'] = pd.to_datetime(df['date'], format='%m/%d/%Y')
     df['Weekday'] = df['date'].dt.weekday_name
 
-    """
+
     ## WARM UP Q1: Which stop has the highest average ridership per day, and what is it?
     # Busiest Station: Clark/Lake, Avg. Daily Rides: 13662.78 -> 13662
     station_dict, df = find_max_avg_daily_rides(df)
@@ -355,7 +353,7 @@ if __name__ == '__main__':
     # Plot ALL stations daily averages just to get an idea of the overall trend for the Appendix.
     daily_df = pd.DataFrame(daily_rides, columns=['Daily_Rides', 'Station'])
     # plot_bar(daily_df.sort_values('Daily_Rides', ascending=False), 'Daily_Rides', xcol='Station')
-    """
+
 
     # Look at marginal annual changes
     dfmarginal = get_all_marginal_rides()
@@ -364,8 +362,9 @@ if __name__ == '__main__':
 
 
     # Look at seasonal changes:
+    daily_rides = get_all_avg_daily_rides(df)
     dftemp = find_seasonal_means(df)
-    plot_temp(dftemp, top5[:-1])
+    plot_temp(dftemp, top5)
     hot_idx = [idx for idx in dftemp.index if 'Hot' in idx]
     cold_idx = [idx for idx in dftemp.index if 'Cold' in idx]
     print("Mean daily riders for the five busiest stations (rounded). \
